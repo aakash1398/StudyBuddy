@@ -176,13 +176,15 @@ def register_user(request):
 def delete_room_message(request,pk):
     message = Message.objects.get(id=pk)
 
-    if request.user != message.user:
+    if request.user == message.user or request.user.username == 'admin':
+
+        if request.method == 'POST':
+            message.delete()
+            return redirect('home')
+
+        context = {'room': message}
+
+        return render(request, 'base/delete-room.html', context)
+    
+    else:
         return HttpResponse('You are not allowed to do that!')
-
-    if request.method == 'POST':
-        message.delete()
-        return redirect('home')
-
-    context = {'room': message}
-
-    return render(request, 'base/delete-room.html', context)
